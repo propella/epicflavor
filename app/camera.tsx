@@ -84,7 +84,7 @@ export default function Camera() {
   if (postResult) {
     keywords = postResult.description;
     if (keywords) {
-    aiImageUr = "https://8940-35-238-195-40.ngrok-free.app/" + keywords.replace(" ", "_")
+      aiImageUr = "https://a2bc-35-238-195-40.ngrok-free.app/" + keywords.replace(" ", "_")
     }
   }
 
