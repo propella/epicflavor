@@ -32,6 +32,7 @@ async function getLabel(imageUrl: string): Promise<string> {
                 type: "authorized_user",
                 client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
                 client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET,
+                // @ts-ignore
                 refresh_token: process.env.NEXT_PUBLIC_REFRESH_TOKEN,
             }
         }
