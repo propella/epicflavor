@@ -30,6 +30,7 @@ export default function Camera() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const captureLabel = imageUrl ? "Retake" : "Capture";
+  const [isLoading, setIsLoading] = useState(false);
 
   const { trigger, data: postResult, error } = useSWRMutation('/api', postImage, /* options */)
 
@@ -40,6 +41,8 @@ export default function Camera() {
   const captureImage = async () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
+
+    setIsLoading(true);
 
     if (!video || !canvas) {
       return;
@@ -74,6 +77,7 @@ export default function Camera() {
       setImageUrl("");
       startCamera(videoRef);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -82,6 +86,7 @@ export default function Camera() {
       <img src={imageUrl} alt="Captured" style={{ display: imageUrl ? "block" : "none" }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <button onClick={captureImage}>{captureLabel}</button>
+      <div>{isLoading ? "Loading...": ""}</div>
       {postResult && <div>{postResult.result}</div> }
       {error && <div>error</div>}
     </div>
