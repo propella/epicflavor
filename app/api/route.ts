@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import vision from '@google-cloud/vision';
+import { Configuration, OpenAIApi } from "openai";
+
 
 export async function GET(request: Request) {
     const response = {
@@ -20,9 +22,9 @@ async function getLabel(imageUrl: string): Promise<string> {
     const base64Image = imageUrl.replace(/^data:image\/(png|jpg);base64,/, "");
     const request = {
         image: {
-          content: base64Image,
-        }
-      };
+            content: base64Image,
+        },
+    };
 
     // Creates a client
     const client = new vision.ImageAnnotatorClient(
@@ -46,6 +48,29 @@ async function getLabel(imageUrl: string): Promise<string> {
     return description || "";
 }
 
+async function getFlavorText(caption: string): Promise<string> {
+    console.log("getFlavorText...")
+
+    const configuration = new Configuration({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    const prompt = `フレーバーテキストとは、トレーディングカードゲームにおける用語で、
+    カードに書かれたテキストのうちゲームの進行そのものには関係しない、
+    もっぱら雰囲気づくりのために用意されているような文章のことである。
+    以下のキーワードを元に日本語のフレーバーテキストを考えてください。
+    キーワード: ${caption}`;
+
+    const chatCompletion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+    });
+    console.log(chatCompletion.data.choices[0].message);
+    const response = chatCompletion.data.choices[0].message?.content;
+    return response || "";
+}
+
 /**
  * POST method receives a image URL and returns a JSON with the string description
  * @param request
@@ -53,11 +78,20 @@ async function getLabel(imageUrl: string): Promise<string> {
 export async function POST(request: Request) {
     const { imageUrl } = await request.json();
     const text = `happy face: ${new Date()}`;
-    const description = await getLabel(imageUrl);
+
+    let description = "";
+    let flavorText = "";
+
+    try {
+        description = await getLabel(imageUrl);
+        flavorText = await getFlavorText(description);
+    }
+    catch (e) {
+        return NextResponse.json(e);
+    }
 
     const response = {
-        "result": description,
+        "result": flavorText,
     };
-    // console.log({ imageUrl });
     return NextResponse.json(response);
 }

@@ -83,6 +83,7 @@ export default function Camera() {
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <button onClick={captureImage}>{captureLabel}</button>
       {postResult && <div>{postResult.result}</div> }
+      {error && <div>error</div>}
     </div>
   );
 }

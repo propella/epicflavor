@@ -5,6 +5,7 @@ EpicFlavor is a unique web application that harnesses the power of AI to transfo
 ## Getting Started
 
 ```bash
+export OPENAI_API_KEY=<your-openai-api-key>
 npm install
 npm run dev
 ```
