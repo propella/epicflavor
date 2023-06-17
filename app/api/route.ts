@@ -91,6 +91,7 @@ export async function POST(request: Request) {
     }
 
     const response = {
+        "description": description,
         "result": flavorText,
     };
     return NextResponse.json(response);

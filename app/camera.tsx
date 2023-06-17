@@ -79,6 +79,14 @@ export default function Camera() {
     }
     setIsLoading(false);
   };
+  let keywords = "";
+  let aiImageUr = "";
+  if (postResult) {
+    keywords = postResult.description;
+    if (keywords) {
+    aiImageUr = "https://8940-35-238-195-40.ngrok-free.app/" + keywords.replace(" ", "_")
+    }
+  }
 
   return (
     <div>
@@ -88,6 +96,7 @@ export default function Camera() {
       <button onClick={captureImage}>{captureLabel}</button>
       <div>{isLoading ? "Loading...": ""}</div>
       {postResult && <div>{postResult.result}</div> }
+      {postResult && <a href={aiImageUr}>{keywords}</a>}
       {error && <div>error</div>}
     </div>
   );
