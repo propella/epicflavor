@@ -21,11 +21,21 @@ async function getLabel(imageUrl: string): Promise<string> {
     const request = {
         image: {
           content: base64Image,
-        },
+        }
       };
 
     // Creates a client
-    const client = new vision.ImageAnnotatorClient();
+    const client = new vision.ImageAnnotatorClient(
+        {
+            credentials: {
+                quota_project_id: "epicflavor",
+                type: "authorized_user",
+                client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
+                client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET,
+                refresh_token: process.env.NEXT_PUBLIC_REFRESH_TOKEN,
+            }
+        }
+    );
     const [result] = await client.labelDetection(request);
     // console.log({result});
     const labels = result.labelAnnotations;
