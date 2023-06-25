@@ -35,22 +35,24 @@ export default function Camera() {
   const { trigger, data: postResult, error } = useSWRMutation('/api', postImage, /* options */)
   const [base64Image, setBase64Image] = useState('');
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = function () {
-                setBase64Image(reader.result);
-            };
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const file = event?.target?.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function () {
+        if (typeof reader.result === 'string') {
+          setBase64Image(reader.result);
         }
-    };
+      };
+    }
+  };
 
   useEffect(() => {
     startCamera(videoRef);
   }, []);
 
-    const captureImage = async () => {
+  const captureImage = async () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
 
@@ -61,7 +63,7 @@ export default function Camera() {
     }
 
 
-      if (captureLabel === "Capture") {
+    if (captureLabel === "Capture") {
 
       // Set the canvas dimensions to match the video
       canvas.width = video.videoWidth;
@@ -77,16 +79,16 @@ export default function Camera() {
       const result = await trigger({ imageUrl: capturedImageUrl }, /* options */)
       console.log(result);
 
-          // Stop all video tracks
-          if (video.srcObject != null) {
-              const mediaStream = video.srcObject as MediaStream;
-              mediaStream.getTracks().forEach(track => track.stop());
-          }
+      // Stop all video tracks
+      if (video.srcObject != null) {
+        const mediaStream = video.srcObject as MediaStream;
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
 
-          // Remove srcObject from the video
-          video.srcObject = null;
+      // Remove srcObject from the video
+      video.srcObject = null;
 
-      } else {
+    } else {
       setImageUrl("");
       startCamera(videoRef);
     }
@@ -101,24 +103,25 @@ export default function Camera() {
     }
   }
 
+  /* eslint-disable @next/next/no-img-element */
   return (
     <div>
       <video ref={videoRef} autoPlay={true} style={{ display: imageUrl ? "none" : "block" }} />
-        <div>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            {base64Image && (
-                <div>
-                    <p>Base64 Encoded Image:</p>
-                    <div>{base64Image}</div>
-                    <img src={base64Image} alt="Uploaded content" />
-                </div>
-            )}
-        </div>
+      <div>
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+        {base64Image && (
+          <div>
+            <p>Base64 Encoded Image:</p>
+            <div>{base64Image}</div>
+            <img src={base64Image} alt="Uploaded content" />
+          </div>
+        )}
+      </div>
       <img src={imageUrl} alt="Captured" style={{ display: imageUrl ? "block" : "none" }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <button onClick={captureImage}>{captureLabel}</button>
-      <div>{isLoading ? "Loading...": ""}</div>
-      {postResult && <div>{postResult.result}</div> }
+      <div>{isLoading ? "Loading..." : ""}</div>
+      {postResult && <div>{postResult.result}</div>}
       {postResult && <a target="_blank" href={aiImageUr}>{keywords}</a>}
       {error && <div>error</div>}
     </div>

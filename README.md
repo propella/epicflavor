@@ -4,8 +4,21 @@ EpicFlavor is a unique web application that harnesses the power of AI to transfo
 
 ## Getting Started
 
+### Configure API Keys
+
+* Get a Google Vision API Key for Service Account:
+    * Visit https://console.cloud.google.com/projectcreate and create a project.
+    * Visit https://console.developers.google.com/apis/api/vision.googleapis.com/overview and enable Vison API.
+    * Visit https://console.cloud.google.com/iam-admin/serviceaccounts and create a service account.
+        * Give role AI Platform Admin (roles/ml.admin)
+        * Add Key and download a JSON file
+* Get an OpenAI API Key: https://platform.openai.com/account/api-keys
+
+Copy .env.local.example to .env.local and fill in the API keys.
+
+### Run the Development Server
+
 ```bash
-export OPENAI_API_KEY=<your-openai-api-key>
 npm install
 npm run dev
 ```

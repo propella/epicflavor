@@ -30,12 +30,9 @@ async function getLabel(imageUrl: string): Promise<string> {
     const client = new vision.ImageAnnotatorClient(
         {
             credentials: {
-                quota_project_id: "epicflavor",
-                type: "authorized_user",
-                client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
-                client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET,
-                // @ts-ignore
-                refresh_token: process.env.NEXT_PUBLIC_REFRESH_TOKEN,
+                client_email: process.env.GCLOUD_CLIENT_EMAIL,
+                private_key: process.env.GCLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                client_id: process.env.GCLOUD_CLIENT_ID,
             }
         }
     );
@@ -87,6 +84,7 @@ export async function POST(request: Request) {
         flavorText = await getFlavorText(description);
     }
     catch (e) {
+        console.error(e);
         return NextResponse.json(e);
     }
 
