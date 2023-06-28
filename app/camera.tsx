@@ -70,7 +70,7 @@ export default function Camera() {
   };
 
   const updateImage = async (newImageUrl: string) => {
-    console.log("updateImage", newImageUrl);
+    // console.log("newImageUrl", newImageUrl);
     setImageUrl(newImageUrl);
 
     const result = await trigger({ imageUrl: newImageUrl } /* options */);
@@ -152,8 +152,8 @@ export default function Camera() {
       )}
       {!isMutating && <button onClick={captureImage}>{captureLabel}</button>}
       <div>{isMutating ? "Loading..." : ""}</div>
-      {postResult && <div>{postResult.result}</div>}
-      {postResult && (
+      {imageUrl && !isMutating && postResult && <div>{postResult.result}</div>}
+      {imageUrl && !isMutating && postResult && (
         <a target="_blank" href={aiImageUr}>
           {keywords}
         </a>
