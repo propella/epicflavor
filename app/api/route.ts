@@ -76,7 +76,6 @@ async function getFlavorText(caption: string): Promise<string> {
  */
 export async function POST(request: Request) {
     const { imageUrl } = await request.json();
-    console.log(process.env);
 
     let description = "";
     let flavorText = "";

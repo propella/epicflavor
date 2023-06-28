@@ -1,0 +1,17 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - env | grep -e GCLOUD_CLIENT_EMAIL -e GCLOUD_PRIVATE_KEY -e GCLOUD_CLIENT_ID -e OPENAI_API_KEY >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
