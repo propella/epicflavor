@@ -19,7 +19,7 @@ async function getLabel(imageUrl: string): Promise<string> {
     // const vision = require('@google-cloud/vision');
 
     console.log("getLabel...")
-    const base64Image = imageUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+    const base64Image = imageUrl.replace(/^data:image\/(png|jpe?g);base64,/, "");
     const request = {
         image: {
             content: base64Image,

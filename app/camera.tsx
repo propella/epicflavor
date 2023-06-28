@@ -42,39 +42,56 @@ export default function Camera() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const captureLabel = imageUrl ? "Retake" : "Capture";
-  const [isLoading, setIsLoading] = useState(false);
 
   const {
     trigger,
+    isMutating,
     data: postResult,
     error,
   } = useSWRMutation("/api", postImage /* options */);
-  const [base64Image, setBase64Image] = useState("");
 
-  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (
+  useEffect(() => {
+    startCamera(videoRef);
+  }, []);
+
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (
     event
   ) => {
     const file = event?.target?.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onloadend = function () {
+      reader.onloadend = async function () {
         if (typeof reader.result === "string") {
-          setBase64Image(reader.result);
+          await updateImage(reader.result);
         }
       };
     }
   };
 
-  useEffect(() => {
-    startCamera(videoRef);
-  }, []);
+  const updateImage = async (newImageUrl: string) => {
+    console.log("updateImage", newImageUrl);
+    setImageUrl(newImageUrl);
+
+    const result = await trigger({ imageUrl: newImageUrl } /* options */);
+    console.log(result);
+
+    // Stop all video tracks
+    if (videoRef.current == null) {
+      return;
+    }
+    if (videoRef.current.srcObject != null) {
+      const mediaStream = videoRef.current.srcObject as MediaStream;
+      mediaStream.getTracks().forEach((track) => track.stop());
+    }
+
+    // Remove srcObject from the videoRef.current
+    videoRef.current.srcObject = null;
+  };
 
   const captureImage = async () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
-
-    setIsLoading(true);
 
     if (!video || !canvas) {
       return;
@@ -93,25 +110,12 @@ export default function Camera() {
       const capturedImageUrl = canvas.toDataURL("image/png");
       // Do something with the image (imageUrl)
       //console.log(capturedImageUrl);
-      setImageUrl(capturedImageUrl);
-      const result = await trigger(
-        { imageUrl: capturedImageUrl } /* options */
-      );
-      console.log(result);
 
-      // Stop all video tracks
-      if (video.srcObject != null) {
-        const mediaStream = video.srcObject as MediaStream;
-        mediaStream.getTracks().forEach((track) => track.stop());
-      }
-
-      // Remove srcObject from the video
-      video.srcObject = null;
+      await updateImage(capturedImageUrl);
     } else {
       setImageUrl("");
       startCamera(videoRef);
     }
-    setIsLoading(false);
   };
   let keywords = "";
   let aiImageUr = "";
@@ -134,24 +138,20 @@ export default function Camera() {
         muted={true}
         style={{ display: imageUrl ? "none" : "block" }}
       />
-      <div>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
-        {base64Image && (
-          <div>
-            <p>Base64 Encoded Image:</p>
-            <div>{base64Image}</div>
-            <img src={base64Image} alt="Uploaded content" />
-          </div>
-        )}
-      </div>
+
       <img
         src={imageUrl}
         alt="Captured"
         style={{ display: imageUrl ? "block" : "none" }}
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
-      <button onClick={captureImage}>{captureLabel}</button>
-      <div>{isLoading ? "Loading..." : ""}</div>
+      {!isMutating && (
+        <div>
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+        </div>
+      )}
+      {!isMutating && <button onClick={captureImage}>{captureLabel}</button>}
+      <div>{isMutating ? "Loading..." : ""}</div>
       {postResult && <div>{postResult.result}</div>}
       {postResult && (
         <a target="_blank" href={aiImageUr}>
