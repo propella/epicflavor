@@ -25,7 +25,6 @@ async function getLabel(imageUrl: string): Promise<string> {
             content: base64Image,
         },
     };
-
     // Creates a client
     const client = new vision.ImageAnnotatorClient(
         {
@@ -77,7 +76,7 @@ async function getFlavorText(caption: string): Promise<string> {
  */
 export async function POST(request: Request) {
     const { imageUrl } = await request.json();
-    const text = `happy face: ${new Date()}`;
+    console.log(process.env);
 
     let description = "";
     let flavorText = "";
