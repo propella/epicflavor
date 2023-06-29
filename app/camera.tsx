@@ -24,7 +24,7 @@ async function startCamera(videoRef: React.RefObject<HTMLVideoElement>) {
   if (!stream) {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: { facingMode: "user", width: 400, height: 400 },
       });
     } catch (err) {
       console.error("Camera not found", err);
@@ -136,6 +136,7 @@ export default function Camera() {
         autoPlay={true}
         playsInline={true}
         muted={true}
+        className="w-full m-2"
         style={{ display: imageUrl ? "none" : "block" }}
       />
 
@@ -143,16 +144,19 @@ export default function Camera() {
         src={imageUrl}
         alt="Captured"
         style={{ display: imageUrl ? "block" : "none" }}
+        className="m-2"
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {imageUrl && !isMutating && postResult && <div className="m-2">{postResult.result}</div>}
+
+      {!isMutating && <button onClick={captureImage} className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full">{captureLabel}</button>}
       {!isMutating && (
         <div>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <input type="file" accept="image/*" onChange={handleFileChange} className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full"/>
         </div>
       )}
-      {!isMutating && <button onClick={captureImage}>{captureLabel}</button>}
       <div>{isMutating ? "Loading..." : ""}</div>
-      {imageUrl && !isMutating && postResult && <div>{postResult.result}</div>}
       {imageUrl && !isMutating && postResult && (
         <a target="_blank" href={aiImageUr}>
           {keywords}
