@@ -53,13 +53,15 @@ async function getFlavorText(caption: string): Promise<string> {
     const openai = new OpenAIApi(configuration);
 
     const prompt = `フレーバーテキストとは、トレーディングカードゲームにおける用語で、
-    カードに書かれたテキストのうちゲームの進行そのものには関係しない、
-    もっぱら雰囲気づくりのために用意されているような文章のことである。
+カードに書かれたテキストのうちゲームの進行そのものには関係しない、
+もっぱら雰囲気づくりのために用意されているような文章のことである。
 
-    以下のキーワードはある写真を表した物です。
-    キーワードを元に日本語で詩的で饒舌なカード名とフレーバーテキストを考えてください。
-    
-    キーワード: ${caption}`;
+キーワード「${caption}」はある写真を表した物である。
+これを元に日本語で詩的で饒舌なカード名とフレーバーテキストを一つずつ挙げ以下の書式で記述せよ。
+
+カード名: (カード名)
+(フレーバーテキスト)
+`;
 
     const chatCompletion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo-0613",

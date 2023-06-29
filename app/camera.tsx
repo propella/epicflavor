@@ -15,7 +15,7 @@ async function startCamera(videoRef: React.RefObject<HTMLVideoElement>) {
 
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { exact: "environment" } },
+      video: { facingMode: { exact: "environment" }, width: 320, height: 320 },
     });
   } catch (err) {
     console.info("Ignore: OverconstrainedError", err);
@@ -24,7 +24,7 @@ async function startCamera(videoRef: React.RefObject<HTMLVideoElement>) {
   if (!stream) {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 400, height: 400 },
+        video: { facingMode: "user", width: 320, height: 320 },
       });
     } catch (err) {
       console.error("Camera not found", err);
@@ -119,6 +119,8 @@ export default function Camera() {
   };
   let keywords = "";
   let aiImageUr = "";
+  let cardname = "";
+  let cardtext = "";
   if (postResult) {
     keywords = postResult.description;
     if (keywords) {
@@ -126,34 +128,57 @@ export default function Camera() {
         "https://a2bc-35-238-195-40.ngrok-free.app/" +
         keywords.replace(" ", "_");
     }
+
+    if (postResult.result) {
+      const results = postResult.result.split("\n");
+      cardname = results[0];
+      cardtext = results.slice(1).join("\n");
+    }
   }
 
   /* eslint-disable @next/next/no-img-element */
   return (
     <div>
-      <video
-        ref={videoRef}
-        autoPlay={true}
-        playsInline={true}
-        muted={true}
-        className="w-full m-2"
-        style={{ display: imageUrl ? "none" : "block" }}
-      />
+      <div className="w-1/2 m-2 text-center">
+        <video
+          ref={videoRef}
+          autoPlay={true}
+          playsInline={true}
+          muted={true}
+          style={{ display: imageUrl ? "none" : "block" }}
+        />
 
-      <img
-        src={imageUrl}
-        alt="Captured"
-        style={{ display: imageUrl ? "block" : "none" }}
-        className="m-2"
-      />
+        <img
+          src={imageUrl}
+          alt="Captured"
+          style={{ display: imageUrl ? "block" : "none" }}
+        />
+      </div>
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {imageUrl && !isMutating && postResult && <div className="m-2">{postResult.result}</div>}
+      {imageUrl && !isMutating && postResult && (
+        <div className="m-2">
+          <div>{cardname}</div>
+          <div>{cardtext}</div>
+        </div>
+      )}
 
-      {!isMutating && <button onClick={captureImage} className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full">{captureLabel}</button>}
+      {!isMutating && (
+        <button
+          onClick={captureImage}
+          className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full"
+        >
+          {captureLabel}
+        </button>
+      )}
       {!isMutating && (
         <div>
-          <input type="file" accept="image/*" onChange={handleFileChange} className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full"/>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full"
+          />
         </div>
       )}
       <div>{isMutating ? "Loading..." : ""}</div>
