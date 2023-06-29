@@ -139,21 +139,21 @@ export default function Camera() {
   /* eslint-disable @next/next/no-img-element */
   return (
     <div>
-      <div className="w-1/2 m-2 text-center">
-        <video
-          ref={videoRef}
-          autoPlay={true}
-          playsInline={true}
-          muted={true}
-          style={{ display: imageUrl ? "none" : "block" }}
-        />
+      <video
+        ref={videoRef}
+        autoPlay={true}
+        playsInline={true}
+        muted={true}
+        style={{ display: imageUrl ? "none" : "block" }}
+        className="m-2 mx-auto"
+      />
 
-        <img
-          src={imageUrl}
-          alt="Captured"
-          style={{ display: imageUrl ? "block" : "none" }}
-        />
-      </div>
+      <img
+        src={imageUrl}
+        alt="Captured"
+        style={{ display: imageUrl ? "block" : "none" }}
+        className="m-2 mx-auto"
+      />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
       {imageUrl && !isMutating && postResult && (
