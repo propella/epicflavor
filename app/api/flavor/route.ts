@@ -1,3 +1,12 @@
+/**
+ * Web API that receives caption and returns a JSON with the string flavor text.
+ * 
+ * Request: POST /api/flavor
+ * { caption: string }
+ * 
+ * Response: { flavorText: string }
+ */
+
 import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi } from "openai";
 

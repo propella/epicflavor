@@ -1,3 +1,12 @@
+/**
+ * Web API that receives a image URL and returns a JSON with the string caption.
+ * 
+ * Request: POST /api/vision
+ * { imageUrl: string }
+ * 
+ * Response: { caption: string }
+ */
+
 import { NextResponse } from "next/server";
 import vision from "@google-cloud/vision";
 

@@ -3,17 +3,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 
-async function postImage(url: string, { arg }: { arg: { imageUrl: string } }) {
-  return fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
-
-async function receiveFlavorText(
-  url: string,
-  { arg }: { arg: { caption: string } }
-) {
+async function fetcher<T>(url: string, { arg }: { arg: T }) {
   return fetch(url, {
     method: "POST",
     body: JSON.stringify(arg),
@@ -52,20 +42,21 @@ export default function Camera() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const captureLabel = imageUrl ? "Retake" : "Capture";
+  let state: "record" | "label" | "flavor" | "done" = "record";
 
   const {
     trigger: triggerFlavor,
     isMutating: isMutating,
     data: postResult,
     error,
-  } = useSWRMutation("/api/flavor", receiveFlavorText);
+  } = useSWRMutation("/api/flavor", fetcher<{ caption: string }>);
 
   const {
     trigger: triggerVision,
     isMutating: isMutatingVision,
     data: dataVison,
     error: errorVision,
-  } = useSWRMutation("/api/vision", postImage);
+  } = useSWRMutation("/api/vision", fetcher<{ imageUrl: string }>);
 
   useEffect(() => {
     startCamera(videoRef);
@@ -156,6 +147,19 @@ export default function Camera() {
     cardtext = results.slice(1).join("\n");
   }
 
+  if (imageUrl) {
+    if (isMutatingVision) {
+      state = "label";
+    } else if (isMutating) {
+      state = "flavor";
+    } else {
+      state = "done";
+    }
+  } else {
+    state = "record";
+  }
+  console.log("state", state);
+
   /* eslint-disable @next/next/no-img-element */
   return (
     <div>
@@ -164,26 +168,26 @@ export default function Camera() {
         autoPlay={true}
         playsInline={true}
         muted={true}
-        style={{ display: imageUrl ? "none" : "block" }}
+        style={{ display: state === "record" ? "block" : "none" }}
         className="m-2 mx-auto"
       />
 
       <img
         src={imageUrl}
         alt="Captured"
-        style={{ display: imageUrl ? "block" : "none" }}
+        style={{ display: state === "record" ? "none" : "block" }}
         className="m-2 mx-auto"
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {imageUrl && !isMutating && postResult && (
+      {state === "done" && (
         <div className="m-2">
           <div>{cardname}</div>
           <div>{cardtext}</div>
         </div>
       )}
 
-      {!isMutating && (
+      {["record", "done"].includes(state) && (
         <button
           onClick={captureImage}
           className="bg-sky-500 hover:bg-sky-700 m-1 py-1 px-4 rounded-full"
@@ -191,7 +195,7 @@ export default function Camera() {
           {captureLabel}
         </button>
       )}
-      {!isMutating && (
+      {["record", "done"].includes(state) && (
         <div>
           <input
             type="file"
@@ -201,8 +205,8 @@ export default function Camera() {
           />
         </div>
       )}
-      <div>{isMutating ? "Loading..." : ""}</div>
-      {imageUrl && !isMutating && postResult && (
+      <div>{["label", "flavor"].includes(state) ? "Loading..." : ""}</div>
+      {["flavor", "capture", "done"].includes(state) && (
         <a target="_blank" href={aiImageUr}>
           {keywords}
         </a>
