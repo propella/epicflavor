@@ -24,3 +24,7 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## References
+
+* [How to Stream Real-Time OpenAI API Responses — Next.js, GPT-3.5-Turbo and Edge Functions | by Lukas Wimhofer | Level Up Coding](https://levelup.gitconnected.com/how-to-stream-real-time-openai-api-responses-next-js-13-2-gpt-3-5-turbo-and-edge-functions-378fea4dadbd)

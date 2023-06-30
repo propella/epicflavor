@@ -10,6 +10,16 @@ async function postImage(url: string, { arg }: { arg: { imageUrl: string } }) {
   }).then((res) => res.json());
 }
 
+async function receiveFlavorText(
+  url: string,
+  { arg }: { arg: { caption: string } }
+) {
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
 async function startCamera(videoRef: React.RefObject<HTMLVideoElement>) {
   let stream: MediaStream | null = null;
 
@@ -44,11 +54,18 @@ export default function Camera() {
   const captureLabel = imageUrl ? "Retake" : "Capture";
 
   const {
-    trigger,
-    isMutating,
+    trigger: triggerFlavor,
+    isMutating: isMutating,
     data: postResult,
     error,
-  } = useSWRMutation("/api", postImage /* options */);
+  } = useSWRMutation("/api/flavor", receiveFlavorText);
+
+  const {
+    trigger: triggerVision,
+    isMutating: isMutatingVision,
+    data: dataVison,
+    error: errorVision,
+  } = useSWRMutation("/api/vision", postImage);
 
   useEffect(() => {
     startCamera(videoRef);
@@ -73,7 +90,10 @@ export default function Camera() {
     // console.log("newImageUrl", newImageUrl);
     setImageUrl(newImageUrl);
 
-    const result = await trigger({ imageUrl: newImageUrl } /* options */);
+    const { caption } = await triggerVision({ imageUrl: newImageUrl });
+    console.log(caption);
+
+    const result = await triggerFlavor({ caption });
     console.log(result);
 
     // Stop all video tracks
@@ -121,19 +141,19 @@ export default function Camera() {
   let aiImageUr = "";
   let cardname = "";
   let cardtext = "";
-  if (postResult) {
-    keywords = postResult.description;
+  if (dataVison) {
+    keywords = dataVison.caption;
     if (keywords) {
       aiImageUr =
         "https://a2bc-35-238-195-40.ngrok-free.app/" +
         keywords.replace(" ", "_");
     }
+  }
 
-    if (postResult.result) {
-      const results = postResult.result.split("\n");
-      cardname = results[0];
-      cardtext = results.slice(1).join("\n");
-    }
+  if (postResult && postResult.flavorText) {
+    const results = postResult.flavorText.split("\n");
+    cardname = results[0];
+    cardtext = results.slice(1).join("\n");
   }
 
   /* eslint-disable @next/next/no-img-element */
